@@ -36,7 +36,7 @@ class Game {
   }
 
   void checkComplete() {
-    if (foundations.where((foundation) => foundation.topValue == 13).length ==
+    if (foundations.where((foundation) => foundation.top.value == 13).length ==
         foundations.length) {
       isGameComplete = true;
     }
