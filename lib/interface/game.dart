@@ -7,13 +7,23 @@ import 'package:flutter_solitaire_2/interface/section.dart';
 abstract class Game {
   List<Game> history = [];
   bool isGameComplete = false;
-  HashMap<String, Section> sectionMap = HashMap();
+  late HashMap<String, Section> sectionMap;
+  late List<GCard> cardSet;
+
+  // Game() {
+  //   //TODO 이부분이 좀 어색함, Library로 제공되었을때 list에 add하는 방식  || 변수에 할당하는 방식
+  //   sectionMap = HashMap();
+  //   cardSet = [];
+  //   _initBoard();
+  //   _initCardSet();
+  // }
 /** sectionMap 초기 설정 */
-  void initBoard();
+  void _initBoard();
 
   /** 카드 셔플, Section.init으로 섹션에 초기카드 전달 */
   void initGame();
 
+  void _initCardSet();
 /**카드 이동내역 기록 */
   void writeHistory() {
     history.add(this);

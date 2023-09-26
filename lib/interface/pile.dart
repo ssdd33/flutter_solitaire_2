@@ -10,6 +10,8 @@ abstract class Pile {
   ) {
     if (defaultCards == null) {
       cards = [];
+    } else {
+      cards = defaultCards;
     }
   }
 

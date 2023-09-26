@@ -1,6 +1,8 @@
+import 'dart:collection';
+
 import 'package:flutter_solitaire_2/interface/card.dart';
 import 'package:flutter_solitaire_2/interface/game.dart';
-import 'package:flutter_solitaire_2/interface/pile.dart';
+
 import 'package:flutter_solitaire_2/model/board/foundation.dart';
 import 'package:flutter_solitaire_2/model/board/stock.dart';
 import 'package:flutter_solitaire_2/model/board/tableau.dart';
@@ -12,20 +14,42 @@ class CardGame extends Game {
       sectionMap[SectionType.foundation.name]! as Foundation;
 
   Tableau get _tableau => sectionMap[SectionType.tableau.name]! as Tableau;
-
   CardGame() {
-    initBoard();
+    _initBoard();
+    _initCardSet();
+  }
+  @override
+  void _initCardSet() {
+    cardSet = [];
+    List<SHAPE> validShapes =
+        SHAPE.values.where((shape) => shape != SHAPE.ALL).toList();
+    List<COLOR> validColor =
+        COLOR.values.where((color) => color != COLOR.ALL).toList();
+
+    for (int i = 0; i < validShapes.length; i++) {
+      COLOR color = validColor[(i + 1) % 2];
+      for (int v = 1; v < 14; v++) {
+        cardSet.add(GCard(validShapes[i], color, v));
+      }
+    }
   }
 
   @override
-  void initBoard() {
+  void _initBoard() {
+    sectionMap = HashMap();
     sectionMap[SectionType.stock.name] = Stock(this);
     sectionMap[SectionType.foundation.name] = Foundation(this);
     sectionMap[SectionType.tableau.name] = Tableau(this);
   }
 
   @override
-  void initGame() {}
+  void initGame() {
+    cardSet.shuffle();
+
+    _foundation.init([]);
+    _tableau.init(cardSet.sublist(0, 24));
+    _tableau.init(cardSet.sublist(24));
+  }
 
   @override
   bool moveInterSection(String sectionId, List<GCard> cards) {
@@ -54,6 +78,16 @@ class CardGame extends Game {
   }
 
   bool _moveToTableau(List<GCard> cards) {
+    //search tableau piles if there is card with opposite color and value + 1
+    GCard selectedCard = cards[0];
+    TableauPile? pile = _tableau.piles.firstWhere((pile) =>
+        pile.bottomColor != selectedCard.color &&
+        pile.bottomValue == selectedCard.value + 1);
+    if (pile != null) {
+      //TODO 카드를 이동한 뒤 기존 pile에서 draw하고 있음, 이부분 순서 다시 생각해보기
+      pile.addCard(cards);
+      return true;
+    }
     return false;
   }
 
@@ -64,58 +98,3 @@ class CardGame extends Game {
 }
 
 enum SectionType { stock, foundation, tableau }
-
-// class Game {
-//   late Stock stock;
-//   late List<Foundation> foundations;
-//   late List<Tableau> tableaus;
-//   List<Game> history = [];
-//   late bool isGameComplete;
-
-//   void initGame() {
-//     /*
-//   -shuffle card
-//   -set foundation
-//   -set tableau 1-7
-//   -set stock with rest cards
-//   -set isGameComplete false
-//   -set history .... writeHistory
-//   */
-//   }
-
-//   void writeHistory(Game game) {
-//     history.add(game);
-//   }
-
-//   void undo() {
-//     if (history.length != 0) {
-//       Game prevState = history.removeLast();
-
-//       stock = prevState.stock;
-//       foundations = prevState.foundations;
-//       tableaus = prevState.tableaus;
-//     }
-//   }
-
-//   void checkComplete() {
-//     if (foundations.where((foundation) => foundation.top.value == 13).length ==
-//         foundations.length) {
-//       isGameComplete = true;
-//     }
-//   }
-
-// /*
-// - choice card
-//  : user interface case
-// 1. std input (String)
-// 2. click event (GCard)
-
-// - draw from section
-// - check available to (priority: foundation > tableau)
-// - add to section 
-// */
-// }
-
-
-
-

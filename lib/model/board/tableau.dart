@@ -5,7 +5,7 @@ import 'package:flutter_solitaire_2/model/card_game.dart';
 
 class TableauPile extends Pile {
   TableauPile(super.id, super.defaultCards);
-  GCard? get topOfFaceUp => cards.firstWhere((card) => card.isFaceUp);
+  // GCard? get topOfFaceUp => cards.firstWhere((card) => card.isFaceUp);
   GCard? get bottomOfFaceUp => cards.lastWhere((card) => card.isFaceUp);
   GCard? get bottomOfFaceDown => cards.lastWhere((card) => !card.isFaceUp);
   COLOR get bottomColor => cards.length == 0 ? COLOR.ALL : cards.last.color;
@@ -18,6 +18,7 @@ class TableauPile extends Pile {
 
   @override
   List<GCard>? drawCard(GCard selectedCard) {
+    //TODO drawcard에서 반환값 필요없음
     if (selectedCard.isFaceUp) {
       int indexOfTop = cards.indexOf(selectedCard);
       List<GCard> leftCards = cards.sublist(0, indexOfTop);
@@ -63,7 +64,26 @@ class Tableau extends Section<TableauPile> {
   void move(String fromPileId, GCard card) {
     //if bottom  : moveto Foundation
     //if not available to foundation || not bottom : move to tableau (draw)
+    TableauPile pile = pileMap[fromPileId]!;
+    bool isAvailableToFoundation = true;
 
-    if (pileMap[fromPileId]!.bottomOfFaceUp == card) {}
+    if (pile.bottomOfFaceUp == card) {
+      isAvailableToFoundation =
+          game.moveInterSection(SectionType.foundation.name, [card]);
+
+      if (isAvailableToFoundation) {
+        pile.drawCard(card);
+      }
+    }
+
+    if (pile.bottomOfFaceUp != card || !isAvailableToFoundation) {
+      List<GCard> selectedCards = pile.cards.sublist(pile.cards.indexOf(card));
+      bool isAvailableToTableau =
+          game.moveInterSection(SectionType.tableau.name, selectedCards);
+
+      if (isAvailableToTableau) {
+        pile.drawCard(card);
+      }
+    }
   }
 }

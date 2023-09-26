@@ -7,7 +7,7 @@ import 'package:flutter_solitaire_2/interface/pile.dart';
 abstract class Section<T extends Pile> {
   final String id;
   final Game game;
-  HashMap<String, T> pileMap = HashMap();
+  LinkedHashMap<String, T> pileMap = LinkedHashMap();
   List<T> get piles => pileMap.values.toList();
 
   Section({
