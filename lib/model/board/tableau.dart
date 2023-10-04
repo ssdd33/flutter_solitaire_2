@@ -85,5 +85,13 @@ class Tableau extends Section<TableauPile> {
         pile.drawCard(card);
       }
     }
+
+    game.isAvailableAutoComplete = checkIsAvailableAutoComplete();
+  }
+
+  bool checkIsAvailableAutoComplete() {
+    return piles.firstWhere((pile) =>
+            pile.cards.firstWhere((card) => !card.isFaceUp) != null) ==
+        null;
   }
 }

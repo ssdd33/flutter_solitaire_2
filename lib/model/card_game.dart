@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter_solitaire_2/interface/card.dart';
 import 'package:flutter_solitaire_2/interface/game.dart';
+import 'package:flutter_solitaire_2/interface/pile.dart';
 
 import 'package:flutter_solitaire_2/model/board/foundation.dart';
 import 'package:flutter_solitaire_2/model/board/stock.dart';
@@ -53,6 +54,7 @@ class CardGame extends Game {
 
   @override
   bool moveInterSection(String sectionId, List<GCard> cards) {
+    //파라미터 formPileId 추가하면 draw -> move 순서로 바꿀수 있음 ->X : pileId는 section초기화에서 정해지는 값으로 이 pileId로 to를 구분할 수 없음
     switch (sectionId) {
       case String id when id == SectionType.foundation.name:
         return _moveToFoundation(cards);
@@ -71,6 +73,7 @@ class CardGame extends Game {
 
     if (pile.topValue == selectedCard.value - 1) {
       pile.addCard(cards);
+      checkComplete();
       return true;
     }
 
@@ -94,6 +97,41 @@ class CardGame extends Game {
   @override
   void checkComplete() {
     isGameComplete = _foundation.isGameComplete();
+  }
+
+  @override
+  void autoComplete() {
+    /*
+    - 태블로의 모든 파일을 순회하며 카드를 파운데이션으로 이동한다 : 
+    카드이동 시도시 카드장수가 이전과 동일하거나 카드가 0장일때까지 카드 이동
+    - 파일에서 카드이동 실행 전에 stock에서 카드 이동 : 
+      파운데이션 섹션별로 현재 파일 상태에서 다음으로 이동가능한 카드가 없을때까지 카드 이동 
+      stock .cards에 해당 카드가 있다 -> stock. move
+      없다 -> 파운데이션 다음으로 
+    */
+
+    for (TableauPile tPile in _tableau.piles) {
+      //stock 먼저 확인
+      for (FoundationPile fPile in _foundation.piles) {
+        if (fPile.topValue < 13) {
+          _stock.autoComplete(fPile.shape, fPile.topValue + 1);
+        }
+      }
+
+      GCard? bottomCard = tPile.bottomOfFaceUp;
+      int curValue = bottomCard == null
+          ? 0
+          : _foundation.piles
+              .firstWhere((pile) => pile.shape == bottomCard.shape)
+              .topValue;
+
+      while (bottomCard != null && curValue == bottomCard.value - 1) {
+        tPile.drawCard(bottomCard);
+        _moveToFoundation([bottomCard]);
+      }
+    }
+
+    isGameComplete = true;
   }
 }
 

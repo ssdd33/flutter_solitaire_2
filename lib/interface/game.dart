@@ -7,6 +7,7 @@ import 'package:flutter_solitaire_2/interface/section.dart';
 abstract class Game {
   List<Game> history = [];
   bool isGameComplete = false;
+  bool isAvailableAutoComplete = false;
   late HashMap<String, Section> sectionMap;
   late List<GCard> cardSet;
 
@@ -45,4 +46,6 @@ abstract class Game {
  * 카드가 이동한 경우 true, 이동가능한 구역이 없어 이동을 못한 경우 false 반환
  */
   bool moveInterSection(String sectionId, List<GCard> cards);
+
+  void autoComplete();
 }

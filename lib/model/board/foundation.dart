@@ -5,8 +5,11 @@ import 'package:flutter_solitaire_2/model/card_game.dart';
 
 class FoundationPile extends Pile {
   int get topValue => cards.length == 0 ? 0 : cards.last.value;
-  FoundationPile(SHAPE shape, List<GCard> defaultCards)
-      : super(shape.name, defaultCards);
+  SHAPE shape = SHAPE.ALL;
+  FoundationPile(SHAPE shapeValue, List<GCard> defaultCards)
+      : super(shapeValue.name, defaultCards) {
+    shape = shapeValue;
+  }
 
   @override
   void addCard(List<GCard> newCards) {

@@ -18,12 +18,8 @@ class StockPile extends Pile {
 
   @override
   List<GCard>? drawCard(GCard selectedCard) {
-    if (topOfFaceUp != null) {
-      List<GCard> drawedCard = [topOfFaceUp!];
-      cards.remove(topOfFaceUp);
-      return drawedCard;
-    }
-    return null;
+    cards.remove(selectedCard);
+    return [selectedCard];
   }
 
   void traverseCard() {
@@ -45,12 +41,14 @@ class Stock extends Section<StockPile> {
 
   @override
   void init(List<GCard> defaultCards) {
-    pileMap["stock"] = StockPile("stock", defaultCards);
+    pileMap[id] = StockPile(id, defaultCards);
   }
 
   @override
   void move(String fromPileId, GCard card) {
-    StockPile pile = pileMap[fromPileId]!;
+    //XXXstock은 pile이 하나이므로 파라미터 fromPileId는 의미 없음 -> 옵셔널로 수정
+
+    StockPile pile = pileMap[id]!;
 
     bool isAvailableToFoundation =
         game.moveInterSection(SectionType.foundation.name, [card]);
@@ -62,6 +60,18 @@ class Stock extends Section<StockPile> {
       if (isAvailableToTableau) {
         pile.drawCard(card);
       }
+    }
+  }
+
+  void autoComplete(SHAPE shape, int value) {
+    int startValue = value;
+    GCard? selectedCard = pileMap[id]!
+        .cards
+        .firstWhere((card) => card.shape == shape && card.value == value);
+
+    while (selectedCard != null) {
+      move('', selectedCard);
+      startValue++;
     }
   }
 }
