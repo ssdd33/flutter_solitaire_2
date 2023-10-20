@@ -14,15 +14,21 @@ class FoundationPile extends Pile {
   @override
   void addCard(List<GCard> newCards) {
     cards.addAll(newCards);
+    addHistory(cards);
   }
 
   @override
   List<GCard>? drawCard(GCard selectedCard) {
-    return [cards.removeLast()];
+    if (cards.length > 0) {
+      GCard removed = cards.removeLast();
+      addHistory(cards);
+      return [removed];
+    }
+    return null;
   }
 }
 
-class Foundation extends Section<FoundationPile> {
+class Foundation extends Section<FoundationPile, SHAPE> {
   Foundation(CardGame game)
       : super(game: game, id: SectionType.foundation.name);
 
@@ -31,7 +37,7 @@ class Foundation extends Section<FoundationPile> {
     for (SHAPE shape in SHAPE.values) {
       if (shape == SHAPE.ALL) continue;
 
-      pileMap[shape.name] = FoundationPile(shape, []);
+      pileMap[shape] = FoundationPile(shape, []);
     }
   }
 

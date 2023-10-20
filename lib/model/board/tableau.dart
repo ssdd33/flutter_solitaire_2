@@ -1,4 +1,5 @@
 import 'package:flutter_solitaire_2/interface/card.dart';
+import 'package:flutter_solitaire_2/interface/game.dart';
 import 'package:flutter_solitaire_2/interface/pile.dart';
 import 'package:flutter_solitaire_2/interface/section.dart';
 import 'package:flutter_solitaire_2/model/card_game.dart';
@@ -14,6 +15,7 @@ class TableauPile extends Pile {
   @override
   void addCard(List<GCard> newCards) {
     cards.addAll(newCards);
+    addHistory(cards);
   }
 
   @override
@@ -24,6 +26,7 @@ class TableauPile extends Pile {
       List<GCard> leftCards = cards.sublist(0, indexOfTop);
       List<GCard> drawedCards = cards.sublist(indexOfTop);
       cards = leftCards;
+      addHistory(cards);
       return drawedCards;
     }
     return null;
@@ -41,13 +44,13 @@ class TableauPile extends Pile {
   }
 }
 
-class Tableau extends Section<TableauPile> {
+class Tableau extends Section<TableauPile, int> {
   Tableau(CardGame game) : super(game: game, id: SectionType.tableau.name);
 
   @override
   void init(List<GCard> defaultCards) {
     for (int i = 0; i <= 6; i++) {
-      String id = "t_$i";
+      int id = i;
       List<GCard> assignedCards = defaultCards.sublist(i, i * 2 + 1);
       assignedCards = assignedCards.map((card) {
         if (card == assignedCards.last) {
@@ -56,7 +59,7 @@ class Tableau extends Section<TableauPile> {
         return card;
       }).toList();
 
-      pileMap["t_$id"] = TableauPile(id, assignedCards);
+      pileMap[id] = TableauPile(id, assignedCards);
     }
   }
 
@@ -85,8 +88,11 @@ class Tableau extends Section<TableauPile> {
         pile.drawCard(card);
       }
     }
-
-    game.isAvailableAutoComplete = checkIsAvailableAutoComplete();
+    bool isAvailableAutoComplete = checkIsAvailableAutoComplete();
+    if (isAvailableAutoComplete) {
+      game.gameStatus = GameStatus.allUp;
+    }
+    game.isAvailableAutoComplete = isAvailableAutoComplete;
   }
 
   bool checkIsAvailableAutoComplete() {

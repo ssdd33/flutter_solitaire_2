@@ -5,7 +5,7 @@ import 'package:flutter_solitaire_2/interface/pile.dart';
 import 'package:flutter_solitaire_2/interface/section.dart';
 
 abstract class Game {
-  List<Game> history = [];
+  GameStatus gameStatus = GameStatus.init;
   bool isGameComplete = false;
   bool isAvailableAutoComplete = false;
   late HashMap<String, Section> sectionMap;
@@ -25,17 +25,6 @@ abstract class Game {
   void initGame();
 
   void _initCardSet();
-/**카드 이동내역 기록 */
-  void writeHistory() {
-    history.add(this);
-  }
-
-  void undo() {
-    if (history.length != 0) {
-      Game prevState = history.removeLast();
-      sectionMap = prevState.sectionMap;
-    }
-  }
 
 /**카드가 모두 정렬되어 게임이 끝났는지 확인, isGameComplete에 값 저장 
 */
@@ -49,3 +38,5 @@ abstract class Game {
 
   void autoComplete();
 }
+
+enum GameStatus { init, playing, allUp, done }

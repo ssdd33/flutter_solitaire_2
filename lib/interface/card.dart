@@ -34,6 +34,11 @@ class GCard {
   int get hashCode {
     return shape.hashCode ^ color.hashCode ^ value.hashCode;
   }
+
+  @override
+  String toString() {
+    return 'GCard(shape: $shape, color: $color, value: $value, isFaceUp: $isFaceUp)';
+  }
 }
 
 enum SHAPE { HEART, SPACE, CLOVER, DIAMOND, ALL }

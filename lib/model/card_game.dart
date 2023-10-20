@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_solitaire_2/interface/card.dart';
 import 'package:flutter_solitaire_2/interface/game.dart';
 import 'package:flutter_solitaire_2/interface/pile.dart';
@@ -8,13 +9,15 @@ import 'package:flutter_solitaire_2/model/board/foundation.dart';
 import 'package:flutter_solitaire_2/model/board/stock.dart';
 import 'package:flutter_solitaire_2/model/board/tableau.dart';
 
-class CardGame extends Game {
-  Stock get _stock => sectionMap[SectionType.stock.name]! as Stock;
+class CardGame extends Game with ChangeNotifier {
+  Stock get stock => sectionMap[SectionType.stock.name]! as Stock;
 
-  Foundation get _foundation =>
+  Foundation get foundation =>
       sectionMap[SectionType.foundation.name]! as Foundation;
 
-  Tableau get _tableau => sectionMap[SectionType.tableau.name]! as Tableau;
+  Tableau get tableau => sectionMap[SectionType.tableau.name]! as Tableau;
+  List<dynamic> history = [];
+
   CardGame() {
     _initBoard();
     _initCardSet();
@@ -33,6 +36,8 @@ class CardGame extends Game {
         cardSet.add(GCard(validShapes[i], color, v));
       }
     }
+    //TODO ui update는 필요없으나 객체 업데이트가 공유되어야 한다.
+    notifyListeners();
   }
 
   @override
@@ -41,15 +46,72 @@ class CardGame extends Game {
     sectionMap[SectionType.stock.name] = Stock(this);
     sectionMap[SectionType.foundation.name] = Foundation(this);
     sectionMap[SectionType.tableau.name] = Tableau(this);
+
+    //TODO ui update는 필요없으나 객체 업데이트가 공유되어야 한다.
+    notifyListeners();
   }
 
   @override
   void initGame() {
     cardSet.shuffle();
 
-    _foundation.init([]);
-    _tableau.init(cardSet.sublist(0, 24));
-    _tableau.init(cardSet.sublist(24));
+    foundation.init([]);
+    stock.init(cardSet.sublist(0, 24));
+    tableau.init(cardSet.sublist(24));
+
+    gameStatus = GameStatus.playing;
+
+    //UI_UPDATE
+    notifyListeners();
+  }
+
+  void addHistory(dynamic from, dynamic to) {
+    history.add([from, to]);
+  }
+
+  void restartGame() {
+    if (history.length > 0) {
+      print(stock.faceUpCards);
+      sectionMap = history[0];
+      history = [history[0]];
+      print(stock.faceUpCards);
+    }
+
+    //UI_UPDATE
+    notifyListeners();
+  }
+
+  void undo() {
+    if (history.length > 0) {
+      List<dynamic> prevMove = history.removeLast();
+
+      if (history.where((id) => id == SectionType.stock).length == 2) {
+        stock.undo(prevMove[0]);
+      } else {
+        prevMove.forEach((id) {
+          switch (id.runtimeType) {
+            case int:
+              {
+                tableau.undo(id);
+              }
+              break;
+            case SHAPE:
+              {
+                foundation.undo(id);
+              }
+              break;
+            case SectionType.stock:
+              {
+                stock.undo(id);
+              }
+              break;
+          }
+        });
+      }
+
+      //UI_UPDATE
+      notifyListeners();
+    }
   }
 
   @override
@@ -69,7 +131,7 @@ class CardGame extends Game {
 
   bool _moveToFoundation(List<GCard> cards) {
     GCard selectedCard = cards[0];
-    FoundationPile pile = _foundation.pileMap[selectedCard.shape.name]!;
+    FoundationPile pile = foundation.pileMap[selectedCard.shape.name]!;
 
     if (pile.topValue == selectedCard.value - 1) {
       pile.addCard(cards);
@@ -83,7 +145,7 @@ class CardGame extends Game {
   bool _moveToTableau(List<GCard> cards) {
     //search tableau piles if there is card with opposite color and value + 1
     GCard selectedCard = cards[0];
-    TableauPile? pile = _tableau.piles.firstWhere((pile) =>
+    TableauPile? pile = tableau.piles.firstWhere((pile) =>
         pile.bottomColor != selectedCard.color &&
         pile.bottomValue == selectedCard.value + 1);
     if (pile != null) {
@@ -96,7 +158,13 @@ class CardGame extends Game {
 
   @override
   void checkComplete() {
-    isGameComplete = _foundation.isGameComplete();
+    bool isComplete = foundation.isGameComplete();
+    isGameComplete = isComplete;
+    if (isComplete) {
+      gameStatus = GameStatus.done;
+    }
+    //UI_UPDATE
+    notifyListeners();
   }
 
   @override
@@ -110,18 +178,18 @@ class CardGame extends Game {
       없다 -> 파운데이션 다음으로 
     */
 
-    for (TableauPile tPile in _tableau.piles) {
+    for (TableauPile tPile in tableau.piles) {
       //stock 먼저 확인
-      for (FoundationPile fPile in _foundation.piles) {
+      for (FoundationPile fPile in foundation.piles) {
         if (fPile.topValue < 13) {
-          _stock.autoComplete(fPile.shape, fPile.topValue + 1);
+          stock.autoComplete(fPile.shape, fPile.topValue + 1);
         }
       }
 
       GCard? bottomCard = tPile.bottomOfFaceUp;
       int curValue = bottomCard == null
           ? 0
-          : _foundation.piles
+          : foundation.piles
               .firstWhere((pile) => pile.shape == bottomCard.shape)
               .topValue;
 
@@ -132,6 +200,10 @@ class CardGame extends Game {
     }
 
     isGameComplete = true;
+    gameStatus = GameStatus.done;
+
+    //UI_UPDATE
+    notifyListeners();
   }
 }
 
