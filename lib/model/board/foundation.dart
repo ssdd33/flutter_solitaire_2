@@ -7,7 +7,7 @@ class FoundationPile extends Pile {
   int get topValue => cards.isEmpty ? 0 : cards.last.value;
   SHAPE shape = SHAPE.ALL;
   FoundationPile(SHAPE shapeValue, List<GCard> defaultCards)
-      : super(shapeValue.name, defaultCards) {
+      : super(shapeValue, defaultCards) {
     shape = shapeValue;
   }
 
@@ -43,12 +43,12 @@ class Foundation extends Section<FoundationPile, SHAPE> {
 
   @override
   move(SHAPE fromPileId, GCard card) {
-    bool isAvailableToTableau =
-        game.moveInterSection(SectionType.tableau.name, [card]);
-    if (isAvailableToTableau) {
+    int? toPileId = game.moveInterSection(SectionType.tableau.name, [card]);
+    if (toPileId != null) {
       FoundationPile pile = pileMap[fromPileId]!;
       pile.drawCard(card);
     }
+    return toPileId;
   }
 
   bool isGameComplete() {

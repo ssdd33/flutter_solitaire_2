@@ -28,4 +28,12 @@ class StockController extends ChangeNotifier {
     game.addHistory(SectionType.stock, SectionType.stock);
     notifyListeners();
   }
+
+  void onMoveCard(GCard card) {
+    dynamic toPileId = stock.move(SectionType.stock, card);
+    if (toPileId != null) {
+      game.addHistory(SectionType.stock, toPileId);
+      notifyListeners();
+    }
+  }
 }

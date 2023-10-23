@@ -76,7 +76,7 @@ class CardGame extends Game with ChangeNotifier {
       section.restart();
     }
     history = [];
-
+    gameStatus = GameStatus.playing;
     //UI_UPDATE
     notifyListeners();
   }
@@ -103,7 +103,7 @@ class CardGame extends Game with ChangeNotifier {
                 foundation.undo(id);
               }
               break;
-            case SectionType.stock:
+            case SectionType:
               {
                 stock.undo(id);
               }
@@ -158,6 +158,8 @@ class CardGame extends Game with ChangeNotifier {
     if (piles.isNotEmpty) {
       TableauPile pile = piles[0];
       pile.addCard(cards);
+      //UI_UPDATE
+      notifyListeners();
       return pile.id;
     }
     return null;
@@ -184,33 +186,40 @@ class CardGame extends Game with ChangeNotifier {
       stock .cards에 해당 카드가 있다 -> stock. move
       없다 -> 파운데이션 다음으로 
     */
+    while (gameStatus != GameStatus.done) {
+      for (TableauPile tPile in tableau.piles) {
+        //stock 먼저 확인
+        for (FoundationPile fPile in foundation.piles) {
+          if (fPile.topValue < 13) {
+            stock.autoComplete(fPile.shape, fPile.topValue + 1);
+            //UI_UPDATE
+            notifyListeners();
+          }
+        }
 
-    for (TableauPile tPile in tableau.piles) {
-      //stock 먼저 확인
-      for (FoundationPile fPile in foundation.piles) {
-        if (fPile.topValue < 13) {
-          stock.autoComplete(fPile.shape, fPile.topValue + 1);
+        GCard? bottomCard = tPile.bottomOfFaceUp;
+        int curValue = bottomCard == null
+            ? 0
+            : foundation.piles
+                .firstWhere((pile) => pile.shape == bottomCard!.shape)
+                .topValue;
+
+        while (bottomCard != null && curValue == bottomCard.value - 1) {
+          tPile.drawCard(bottomCard);
+          _moveToFoundation([bottomCard]);
+
+          bottomCard = tPile.bottomOfFaceUp;
+          curValue = bottomCard == null
+              ? 0
+              : foundation.piles
+                  .firstWhere((pile) => pile.shape == bottomCard!.shape)
+                  .topValue;
+
+          //UI_UPDATE
+          notifyListeners();
         }
       }
-
-      GCard? bottomCard = tPile.bottomOfFaceUp;
-      int curValue = bottomCard == null
-          ? 0
-          : foundation.piles
-              .firstWhere((pile) => pile.shape == bottomCard.shape)
-              .topValue;
-
-      while (bottomCard != null && curValue == bottomCard.value - 1) {
-        tPile.drawCard(bottomCard);
-        _moveToFoundation([bottomCard]);
-      }
     }
-
-    isGameComplete = true;
-    gameStatus = GameStatus.done;
-
-    //UI_UPDATE
-    notifyListeners();
   }
 }
 

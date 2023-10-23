@@ -41,6 +41,6 @@ class GCard {
   }
 }
 
-enum SHAPE { HEART, SPACE, CLOVER, DIAMOND, ALL }
+enum SHAPE { SPACE, HEART, CLOVER, DIAMOND, ALL }
 
 enum COLOR { RED, BLACK, ALL }

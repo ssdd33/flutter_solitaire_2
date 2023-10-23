@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 
 import 'package:flutter_solitaire_2/interface/card.dart';
@@ -32,7 +33,10 @@ class StockScreen extends StatelessWidget {
                 direction: Axis.horizontal,
                 children: [
                   if (controller.status != GameStatus.init) ...[
-                    FaceUpCards(cards: controller.faceUpCards),
+                    FaceUpCards(
+                      cards: controller.faceUpCards,
+                      onMoveCard: controller.onMoveCard,
+                    ),
                     GestureDetector(
                         onTap: controller.onTraverseCard,
                         child: Stack(
@@ -60,9 +64,11 @@ class StockScreen extends StatelessWidget {
 }
 
 class FaceUpCards extends StatelessWidget {
+  final void Function(GCard card) onMoveCard;
   final List<GCard> cards;
   const FaceUpCards({
     Key? key,
+    required this.onMoveCard,
     required this.cards,
   }) : super(key: key);
 
@@ -82,7 +88,11 @@ class FaceUpCards extends StatelessWidget {
                     width: 50 +
                         (((cards.indexOf(card) - (cards.length - 1))).abs() *
                             15),
-                    child: FaceUpCardWidget(card: card)))
+                    child: cards.indexOf(card) == cards.length - 1
+                        ? GestureDetector(
+                            child: FaceUpCardWidget(card: card),
+                            onTap: () => onMoveCard(card))
+                        : FaceUpCardWidget(card: card)))
                 .toList(),
         ],
       ),

@@ -7,7 +7,11 @@ import 'package:flutter_solitaire_2/model/card_game.dart';
 class TableauPile extends Pile {
   TableauPile(super.id, super.defaultCards);
   // GCard? get topOfFaceUp => cards.firstWhere((card) => card.isFaceUp);
-  GCard? get bottomOfFaceUp => cards.isEmpty ? null : cards.last;
+  GCard? get bottomOfFaceUp => cards.isEmpty
+      ? null
+      : cards.last.isFaceUp
+          ? cards.last
+          : null;
   GCard? get bottomOfFaceDown =>
       cards.isEmpty ? null : cards.lastWhere((card) => !card.isFaceUp);
   COLOR get bottomColor => cards.isEmpty ? COLOR.ALL : cards.last.color;
@@ -53,9 +57,11 @@ class Tableau extends Section<TableauPile, int> {
 
   @override
   void init(List<GCard> defaultCards) {
+    int sum = 0;
     for (int i = 0; i <= 6; i++) {
+      sum += i;
       int id = i;
-      List<GCard> assignedCards = defaultCards.sublist(i, i * 2 + 1);
+      List<GCard> assignedCards = defaultCards.sublist(sum, sum + i + 1);
       assignedCards = assignedCards.map((card) {
         if (card == assignedCards.last) {
           return card.copyWith(isFaceUp: true);
@@ -72,34 +78,30 @@ class Tableau extends Section<TableauPile, int> {
     //if bottom  : moveto Foundation
     //if not available to foundation || not bottom : move to tableau (draw)
     TableauPile pile = pileMap[fromPileId]!;
-    bool isAvailableToFoundation = true;
+    bool checkTableau = true;
     dynamic toPileId;
 
 // card 1장이 선택된 경우
     if (pile.bottomOfFaceUp == card) {
       toPileId = game.moveInterSection(SectionType.foundation.name, [card]);
 
-      if (toPileId == null) {
-        isAvailableToFoundation = false;
-      }
-
-      if (isAvailableToFoundation) {
-        pile.drawCard(card);
+      if (toPileId != null) {
+        checkTableau = false;
       }
     }
 
 // pile이 선택된 경우  or 이동가능한 foundation이 없는 경우
-    if (pile.bottomOfFaceUp != card || !isAvailableToFoundation) {
+    if (checkTableau) {
       GCard selectedCard =
           pile.cards.where((pCard) => pCard == card).toList()[0];
       int indexOfCard = pile.cards.indexOf(selectedCard);
       List<GCard> selectedCards = pile.cards.sublist(indexOfCard);
 
       toPileId = game.moveInterSection(SectionType.tableau.name, selectedCards);
+    }
 
-      if (toPileId != null) {
-        pile.drawCard(card);
-      }
+    if (toPileId != null) {
+      pile.drawCard(card);
     }
 
     bool isAvailableAutoComplete = checkIsAvailableAutoComplete();

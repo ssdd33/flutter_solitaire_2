@@ -56,30 +56,32 @@ class Stock extends Section<StockPile, SectionType> {
   move(SectionType fromPileId, GCard card) {
     //XXX stock은 pile이 하나이므로 파라미터 fromPileId는 의미 없음 -> 옵셔널로 수정
 
-    StockPile pile = pileMap[id]!;
+    StockPile pile = pileMap[SectionType.stock]!;
 
-    bool isAvailableToFoundation =
-        game.moveInterSection(SectionType.foundation.name, [card]);
-    if (isAvailableToFoundation) {
+    dynamic toPileId;
+    toPileId = game.moveInterSection(SectionType.foundation.name, [card]);
+
+    toPileId ??= game.moveInterSection(SectionType.tableau.name, [card]);
+    if (toPileId != null) {
       pile.drawCard(card);
-    } else {
-      bool isAvailableToTableau =
-          game.moveInterSection(SectionType.tableau.name, [card]);
-      if (isAvailableToTableau) {
-        pile.drawCard(card);
-      }
     }
+    return toPileId;
   }
 
   void autoComplete(SHAPE shape, int value) {
     int startValue = value;
-    GCard? selectedCard = pileMap[id]!
+    List<GCard> selectedCards = pileMap[SectionType.stock]!
         .cards
-        .firstWhere((card) => card.shape == shape && card.value == value);
+        .where((card) => card.shape == shape && card.value == startValue)
+        .toList();
 
-    while (selectedCard != null) {
-      move(SectionType.stock, selectedCard);
+    while (selectedCards.isNotEmpty) {
+      move(SectionType.stock, selectedCards[0]);
       startValue++;
+      selectedCards = pileMap[SectionType.stock]!
+          .cards
+          .where((card) => card.shape == shape && card.value == startValue)
+          .toList();
     }
   }
 }
