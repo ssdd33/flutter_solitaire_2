@@ -18,7 +18,7 @@ done: restart , new game
   Widget build(BuildContext context) {
     CardGame game = CardGameScreen.game(context);
     GameStatus status = game.gameStatus;
-
+    print('**HEADER BUILD');
     return Container(
         height: double.infinity,
         decoration: BoxDecoration(border: Border.all()),
@@ -30,9 +30,9 @@ done: restart , new game
               : status == GameStatus.playing
                   ? Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                       NewGameButton(onPressed: game.initGame),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       RestartButton(onPressed: game.restartGame),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       UndoButton(onPressed: game.undo)
                     ])
                   : status == GameStatus.done
@@ -40,18 +40,18 @@ done: restart , new game
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                               NewGameButton(onPressed: game.initGame),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               RestartButton(onPressed: game.restartGame)
                             ])
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                               NewGameButton(onPressed: game.initGame),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               RestartButton(onPressed: game.restartGame),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               AutoCompleteButton(onPressed: game.autoComplete),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               UndoButton(onPressed: game.undo)
                             ]),
         ));
@@ -67,7 +67,7 @@ class NewGameButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(onPressed: onPressed, child: Text('new game'));
+    return ElevatedButton(onPressed: onPressed, child: const Text('new game'));
   }
 }
 
@@ -80,7 +80,7 @@ class RestartButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(onPressed: onPressed, child: Text('reStart'));
+    return ElevatedButton(onPressed: onPressed, child: const Text('reStart'));
   }
 }
 
@@ -93,7 +93,8 @@ class AutoCompleteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(onPressed: onPressed, child: Text('auto complete'));
+    return ElevatedButton(
+        onPressed: onPressed, child: const Text('auto complete'));
   }
 }
 
@@ -106,6 +107,6 @@ class UndoButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(onPressed: onPressed, child: Text('undo'));
+    return ElevatedButton(onPressed: onPressed, child: const Text('undo'));
   }
 }

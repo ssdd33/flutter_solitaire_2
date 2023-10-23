@@ -16,15 +16,17 @@ abstract class Section<T extends Pile, K> {
   });
   void init(List<GCard> defaultCards);
 
-  void move(String fromPileId, GCard card);
+  /// toPileId 반환 -> viewController단에서 game.addHistory 실행하기위함
+  dynamic move(K fromPileId, GCard card);
 
   void undo(K pileId) {
     pileMap[pileId]!.undo();
+    print("section undo: ${pileMap[pileId]!.cards}");
   }
 
   void restart() {
-    piles.forEach((pile) {
+    for (var pile in piles) {
       pile.restart();
-    });
+    }
   }
 }

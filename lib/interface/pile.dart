@@ -27,18 +27,24 @@ abstract class Pile {
         .toList();
 
     history.add(snapShot);
+    print('pile history: $history');
   }
 
   void undo() {
-    if (history.length > 0) {
-      cards = history.removeLast();
+    if (history.length > 1) {
+      history.removeLast();
+      cards = history.last
+          .map((card) =>
+              GCard(card.shape, card.color, card.value, card.isFaceUp))
+          .toList();
     }
   }
 
   void restart() {
-    if (history.length > 0) {
-      cards = history[0];
-      history = [];
-    }
+    print(history[0]);
+    cards = history[0]
+        .map((card) => GCard(card.shape, card.color, card.value, card.isFaceUp))
+        .toList();
+    history = [history.first];
   }
 }

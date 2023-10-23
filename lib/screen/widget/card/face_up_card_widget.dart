@@ -9,18 +9,46 @@ class FaceUpCardWidget extends StatelessWidget {
     required this.card,
   }) : super(key: key);
 
+  String parseValue(int value) {
+    switch (value) {
+      case 11:
+        return 'J';
+      case 12:
+        return 'Q';
+      case 13:
+        return 'K';
+      default:
+        return '$value';
+    }
+  }
+
+  String parseShape(SHAPE shape) {
+    switch (shape) {
+      case SHAPE.CLOVER:
+        return '♣︎';
+      case SHAPE.HEART:
+        return '♥︎';
+      case SHAPE.DIAMOND:
+        return '♦';
+      case SHAPE.SPACE:
+        return '♠';
+      default:
+        return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      height: double.infinity,
+      width: 50,
+      height: 80,
       decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
                 color: Colors.black.withOpacity(0.3),
                 spreadRadius: 0.7,
                 blurRadius: 0.5,
-                offset: Offset(-1, 1))
+                offset: const Offset(-1, 1))
           ],
           border: Border.all(
             color: Colors.black,
@@ -32,7 +60,7 @@ class FaceUpCardWidget extends StatelessWidget {
         child: Align(
           alignment: Alignment.topLeft,
           child: Text(
-            '${card.shape.name.substring(0, 1)}${card.value}'.toUpperCase(),
+            '${parseValue(card.value)}${parseShape(card.shape)}'.toUpperCase(),
             style: TextStyle(
                 fontSize: 10,
                 color: card.color.name.substring(0, 1) == 'R'

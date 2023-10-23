@@ -16,40 +16,35 @@ class StockScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    CardGame game = CardGameScreen.game(context);
-    Stock stock = game.stock;
-    GameStatus status = game.gameStatus;
-
-    StockController controller = StockController(stock: stock);
-
-    return Container(
+    StockController controller = StockController(context);
+    print("***STOCK BUILD");
+    return SizedBox(
       height: double.infinity,
       width: double.infinity,
-      decoration: BoxDecoration(border: Border.all()),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 50),
         child: ListenableBuilder(
             listenable: controller,
             builder: (BuildContext context, Widget? child) {
+              print('listener: ${controller.faceUpCards}');
               return Flex(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 direction: Axis.horizontal,
                 children: [
-                  if (status == GameStatus.init) ...[Blank(), Blank()],
-                  if (status != GameStatus.init) ...[
+                  if (controller.status != GameStatus.init) ...[
                     FaceUpCards(cards: controller.faceUpCards),
                     GestureDetector(
                         onTap: controller.onTraverseCard,
                         child: Stack(
                             alignment: AlignmentDirectional.bottomEnd,
                             children: [
-                              FaceDownCardWidget(),
+                              const FaceDownCardWidget(),
                               Container(
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                     color: Color.fromARGB(100, 255, 255, 255)),
                                 child: Text('${controller.faceDownCardsCount}',
                                     textAlign: TextAlign.end,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 15,
                                         color: Colors.white,
                                         fontWeight: FontWeight.w100)),
@@ -73,15 +68,15 @@ class FaceUpCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(cards.map((card) => card.toString()).toList());
+    print('faceupCards : $cards');
     return SizedBox(
       width: 82,
       height: 80,
       child: Stack(
         alignment: AlignmentDirectional.topEnd,
         children: [
-          if (cards.length == 0) Blank(),
-          if (cards.length > 0)
+          if (cards.isEmpty) const Blank(),
+          if (cards.isNotEmpty)
             ...cards
                 .map((GCard card) => SizedBox(
                     width: 50 +

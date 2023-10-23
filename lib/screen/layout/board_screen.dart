@@ -8,9 +8,10 @@ class BoardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    print("** BOARD BUILD");
+    return const SizedBox(
       height: double.infinity,
-      child: const Padding(
+      child: Padding(
           padding: EdgeInsets.all(10),
           child: Column(children: [
             Flexible(

@@ -5,7 +5,7 @@ import 'package:flutter_solitaire_2/screen/layout/board_screen.dart';
 import 'package:flutter_solitaire_2/screen/layout/header.dart';
 
 void main() {
-  runApp(RootApp());
+  runApp(const RootApp());
 }
 
 class RootApp extends StatelessWidget {
@@ -34,6 +34,7 @@ class RootApp extends StatelessWidget {
         home: ListenableBuilder(
             listenable: game,
             builder: (BuildContext context, Widget? child) {
+              print('*GAME BUILD');
               return CardGameScreen(game,
                   child: SafeArea(
                       child: Stack(

@@ -18,23 +18,20 @@ abstract class Game {
   //   _initBoard();
   //   _initCardSet();
   // }
-/** sectionMap 초기 설정 */
+  /// sectionMap 초기 설정
   void _initBoard();
 
-  /** 카드 셔플, Section.init으로 섹션에 초기카드 전달 */
+  /// 카드 셔플, Section.init으로 섹션에 초기카드 전달
   void initGame();
 
   void _initCardSet();
 
-/**카드가 모두 정렬되어 게임이 끝났는지 확인, isGameComplete에 값 저장 
-*/
+  /// 카드가 모두 정렬되어 게임이 끝났는지 확인, isGameComplete에 값 저장
   void checkComplete();
 
-/**
- * sectionId 에 따라 로직 분기 : 카드게임에서는 어느섹션으로 이동할지 구분 값으로 사용됨 
- * 카드가 이동한 경우 true, 이동가능한 구역이 없어 이동을 못한 경우 false 반환
- */
-  bool moveInterSection(String sectionId, List<GCard> cards);
+  /// sectionId 에 따라 로직 분기 : 카드게임에서는 어느섹션으로 이동할지 구분 값으로 사용됨
+  /// 카드가 이동한 경우 true, 이동가능한 구역이 없어 이동을 못한 경우 false 반환
+  dynamic moveInterSection(String sectionId, List<GCard> cards);
 
   void autoComplete();
 }

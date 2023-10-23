@@ -4,7 +4,7 @@ import 'package:flutter_solitaire_2/interface/section.dart';
 import 'package:flutter_solitaire_2/model/card_game.dart';
 
 class FoundationPile extends Pile {
-  int get topValue => cards.length == 0 ? 0 : cards.last.value;
+  int get topValue => cards.isEmpty ? 0 : cards.last.value;
   SHAPE shape = SHAPE.ALL;
   FoundationPile(SHAPE shapeValue, List<GCard> defaultCards)
       : super(shapeValue.name, defaultCards) {
@@ -19,7 +19,7 @@ class FoundationPile extends Pile {
 
   @override
   List<GCard>? drawCard(GCard selectedCard) {
-    if (cards.length > 0) {
+    if (cards.isNotEmpty) {
       GCard removed = cards.removeLast();
       addHistory(cards);
       return [removed];
@@ -42,7 +42,7 @@ class Foundation extends Section<FoundationPile, SHAPE> {
   }
 
   @override
-  void move(String fromPileId, GCard card) {
+  move(SHAPE fromPileId, GCard card) {
     bool isAvailableToTableau =
         game.moveInterSection(SectionType.tableau.name, [card]);
     if (isAvailableToTableau) {

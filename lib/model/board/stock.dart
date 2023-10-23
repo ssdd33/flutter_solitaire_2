@@ -38,19 +38,23 @@ class StockPile extends Pile {
 }
 
 class Stock extends Section<StockPile, SectionType> {
-  Stock(CardGame game) : super(game: game, id: SectionType.stock.name);
+  Stock(CardGame game) : super(game: game, id: SectionType.stock.name) {
+    init([]);
+  }
   List<GCard> get faceUpCards =>
-      piles[0].cards.where((card) => card.isFaceUp).toList();
-  List<GCard> get faceDownCards =>
-      piles[0].cards.where((card) => !card.isFaceUp).toList();
+      pileMap[SectionType.stock]!.cards.where((card) => card.isFaceUp).toList();
+  List<GCard> get faceDownCards => pileMap[SectionType.stock]!
+      .cards
+      .where((card) => !card.isFaceUp)
+      .toList();
   @override
   void init(List<GCard> defaultCards) {
     pileMap[SectionType.stock] = StockPile(SectionType.stock, defaultCards);
   }
 
   @override
-  void move(String fromPileId, GCard card) {
-    //XXXstock은 pile이 하나이므로 파라미터 fromPileId는 의미 없음 -> 옵셔널로 수정
+  move(SectionType fromPileId, GCard card) {
+    //XXX stock은 pile이 하나이므로 파라미터 fromPileId는 의미 없음 -> 옵셔널로 수정
 
     StockPile pile = pileMap[id]!;
 
@@ -74,7 +78,7 @@ class Stock extends Section<StockPile, SectionType> {
         .firstWhere((card) => card.shape == shape && card.value == value);
 
     while (selectedCard != null) {
-      move('', selectedCard);
+      move(SectionType.stock, selectedCard);
       startValue++;
     }
   }

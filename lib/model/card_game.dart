@@ -58,37 +58,40 @@ class CardGame extends Game with ChangeNotifier {
     foundation.init([]);
     stock.init(cardSet.sublist(0, 24));
     tableau.init(cardSet.sublist(24));
-
+    history = [];
     gameStatus = GameStatus.playing;
 
     //UI_UPDATE
     notifyListeners();
   }
 
+// UI controller에서 실행되어야함
   void addHistory(dynamic from, dynamic to) {
     history.add([from, to]);
+    (history);
   }
 
   void restartGame() {
-    if (history.length > 0) {
-      print(stock.faceUpCards);
-      sectionMap = history[0];
-      history = [history[0]];
-      print(stock.faceUpCards);
+    for (var section in sectionMap.values) {
+      section.restart();
     }
+    history = [];
 
     //UI_UPDATE
     notifyListeners();
   }
 
   void undo() {
-    if (history.length > 0) {
+    print('undo! ${history.length}');
+    if (history.isNotEmpty) {
       List<dynamic> prevMove = history.removeLast();
-
-      if (history.where((id) => id == SectionType.stock).length == 2) {
+      print('prevMove: $prevMove');
+      print(prevMove.where((id) => id == SectionType.stock).length == 2);
+      if (prevMove.where((id) => id == SectionType.stock).length == 2) {
         stock.undo(prevMove[0]);
+        print('stock undo id:${prevMove[0]}');
       } else {
-        prevMove.forEach((id) {
+        for (var id in prevMove) {
           switch (id.runtimeType) {
             case int:
               {
@@ -106,7 +109,7 @@ class CardGame extends Game with ChangeNotifier {
               }
               break;
           }
-        });
+        }
       }
 
       //UI_UPDATE
@@ -115,7 +118,7 @@ class CardGame extends Game with ChangeNotifier {
   }
 
   @override
-  bool moveInterSection(String sectionId, List<GCard> cards) {
+  dynamic moveInterSection(String sectionId, List<GCard> cards) {
     //파라미터 formPileId 추가하면 draw -> move 순서로 바꿀수 있음 ->X : pileId는 section초기화에서 정해지는 값으로 이 pileId로 to를 구분할 수 없음
     switch (sectionId) {
       case String id when id == SectionType.foundation.name:
@@ -125,35 +128,39 @@ class CardGame extends Game with ChangeNotifier {
         return _moveToTableau(cards);
 
       default:
-        return false;
+        return null;
     }
   }
 
-  bool _moveToFoundation(List<GCard> cards) {
+  SHAPE? _moveToFoundation(List<GCard> cards) {
     GCard selectedCard = cards[0];
-    FoundationPile pile = foundation.pileMap[selectedCard.shape.name]!;
+    FoundationPile pile = foundation.pileMap[selectedCard.shape]!;
 
     if (pile.topValue == selectedCard.value - 1) {
       pile.addCard(cards);
       checkComplete();
-      return true;
+      return pile.shape;
     }
 
-    return false;
+    return null;
   }
 
-  bool _moveToTableau(List<GCard> cards) {
+  int? _moveToTableau(List<GCard> cards) {
     //search tableau piles if there is card with opposite color and value + 1
     GCard selectedCard = cards[0];
-    TableauPile? pile = tableau.piles.firstWhere((pile) =>
-        pile.bottomColor != selectedCard.color &&
-        pile.bottomValue == selectedCard.value + 1);
-    if (pile != null) {
-      //TODO 카드를 이동한 뒤 기존 pile에서 draw하고 있음, 이부분 순서 다시 생각해보기
+    print(tableau.piles);
+    List<TableauPile> piles = tableau.piles
+        .where((pile) =>
+            pile.bottomColor != selectedCard.color &&
+            pile.bottomValue == selectedCard.value + 1)
+        .toList();
+    //TODO 카드를 이동한 뒤 기존 pile에서 draw하고 있음, 이부분 순서 다시 생각해보기
+    if (piles.isNotEmpty) {
+      TableauPile pile = piles[0];
       pile.addCard(cards);
-      return true;
+      return pile.id;
     }
-    return false;
+    return null;
   }
 
   @override

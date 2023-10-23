@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_solitaire_2/interface/card.dart';
 import 'package:flutter_solitaire_2/interface/game.dart';
 import 'package:flutter_solitaire_2/model/board/tableau.dart';
 import 'package:flutter_solitaire_2/model/card_game.dart';
@@ -16,5 +17,14 @@ class TableauController with ChangeNotifier {
     tableau = game.tableau;
   }
 
+  void onClickCard(int pileId, GCard card) {
+    dynamic toPileId = tableau.move(pileId, card);
+    if (toPileId != null) {
+      game.addHistory(pileId, toPileId);
+      notifyListeners();
+    }
+  }
+
   GameStatus get gameStatus => game.gameStatus;
+  List<TableauPile> get piles => tableau.piles;
 }

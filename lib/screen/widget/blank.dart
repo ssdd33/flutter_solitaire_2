@@ -5,10 +5,9 @@ class Blank extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return const SizedBox(
       width: 50,
       height: 80,
-      decoration: BoxDecoration(border: Border.all()),
     );
   }
 }
