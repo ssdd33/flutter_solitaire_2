@@ -25,6 +25,8 @@ class TableauController with ChangeNotifier {
     }
   }
 
+  GCard? CardOfHint(int pileId) {}
+
   GameStatus get gameStatus => game.gameStatus;
   List<TableauPile> get piles => tableau.piles;
 }

@@ -30,7 +30,7 @@ class FaceUpCardWidget extends StatelessWidget {
         return '♥︎';
       case SHAPE.DIAMOND:
         return '♦';
-      case SHAPE.SPACE:
+      case SHAPE.SPADE:
         return '♠';
       default:
         return '';

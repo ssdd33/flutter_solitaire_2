@@ -33,7 +33,12 @@ done: restart , new game
                       const SizedBox(width: 10),
                       RestartButton(onPressed: game.restartGame),
                       const SizedBox(width: 10),
-                      UndoButton(onPressed: game.undo)
+                      UndoButton(onPressed: game.undo),
+                      const SizedBox(width: 10),
+                      HintButton(onPressed: () {
+                        print(game.hintList);
+                        print(game.getHint());
+                      })
                     ])
                   : status == GameStatus.done
                       ? Row(
@@ -108,5 +113,18 @@ class UndoButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(onPressed: onPressed, child: const Text('undo'));
+  }
+}
+
+class HintButton extends StatelessWidget {
+  final void Function() onPressed;
+  const HintButton({
+    Key? key,
+    required this.onPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(onPressed: onPressed, child: const Text('hint'));
   }
 }

@@ -37,10 +37,10 @@ class GCard {
 
   @override
   String toString() {
-    return 'GCard(shape: $shape, color: $color, value: $value, isFaceUp: $isFaceUp)';
+    return '${isFaceUp ? '*' : ''}${shape.name.substring(0, 1)}$value${isFaceUp ? '*' : ''}';
   }
 }
 
-enum SHAPE { SPACE, HEART, CLOVER, DIAMOND, ALL }
+enum SHAPE { SPADE, HEART, CLOVER, DIAMOND, ALL }
 
 enum COLOR { RED, BLACK, ALL }

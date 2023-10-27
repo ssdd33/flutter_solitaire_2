@@ -11,12 +11,16 @@ import 'package:flutter_solitaire_2/model/board/tableau.dart';
 
 class CardGame extends Game with ChangeNotifier {
   Stock get stock => sectionMap[SectionType.stock.name]! as Stock;
-
   Foundation get foundation =>
       sectionMap[SectionType.foundation.name]! as Foundation;
-
   Tableau get tableau => sectionMap[SectionType.tableau.name]! as Tableau;
   List<dynamic> history = [];
+
+  /**
+   * List< [GCard card, dynamic from, dynamic to] >
+   */
+  List<List<dynamic>> hintList = [];
+  int curHintIdx = 0;
 
   CardGame() {
     _initBoard();
@@ -60,6 +64,25 @@ class CardGame extends Game with ChangeNotifier {
     tableau.init(cardSet.sublist(24));
     history = [];
     gameStatus = GameStatus.playing;
+
+    //XXX make first hint list
+    hintList = [];
+    curHintIdx = 0;
+    for (TableauPile pile in tableau.piles) {
+      GCard last = pile.cards.last;
+      List<int> availableToList = checkAvailableMoveToTableau(last);
+      SHAPE? availableToShape = checkAvailableMoveToFoundation(last);
+
+      if (availableToList.isNotEmpty) {
+        for (int toPileId in availableToList) {
+          hintList.add([last, pile.id, toPileId]);
+        }
+      }
+
+      if (availableToShape != null) {
+        hintList.add([last, pile.id, availableToShape]);
+      }
+    }
 
     //UI_UPDATE
     notifyListeners();
@@ -111,7 +134,7 @@ class CardGame extends Game with ChangeNotifier {
           }
         }
       }
-
+      gameStatus = GameStatus.playing;
       //UI_UPDATE
       notifyListeners();
     }
@@ -161,6 +184,30 @@ class CardGame extends Game with ChangeNotifier {
       //UI_UPDATE
       notifyListeners();
       return pile.id;
+    }
+    return null;
+  }
+
+  List<int> checkAvailableMoveToTableau(GCard card) {
+    List<int> result = [];
+
+    for (TableauPile pile in tableau.piles) {
+      if (pile.cards.isNotEmpty) {
+        GCard last = pile.cards.last;
+        if (last.color != card.color && last.value == card.value + 1) {
+          result.add(pile.id);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  SHAPE? checkAvailableMoveToFoundation(GCard card) {
+    for (FoundationPile pile in foundation.piles) {
+      if (pile.shape == card.shape && pile.topValue == card.value - 1) {
+        return pile.shape;
+      }
     }
     return null;
   }
@@ -221,6 +268,50 @@ class CardGame extends Game with ChangeNotifier {
       }
     }
   }
+
+  List<dynamic>? getHint() {
+    List<dynamic>? hint = null;
+    if (hintList.isNotEmpty) {
+      hint = hintList[curHintIdx];
+      if (curHintIdx == hintList.length - 1) {
+        curHintIdx = 0;
+      } else {
+        curHintIdx++;
+      }
+    }
+    return hint;
+  }
 }
 
 enum SectionType { stock, foundation, tableau }
+
+
+
+
+/*
+
+[hint]
+
+update hint list
+
+1. when game start
+ - for each TABLEAU check last card for available move
+A[card, from, to]
+from: TABLEAU pile
+to : other TABLEAU pile or FOUNDATION pile
+
+2. when move card  M[card, from, to]
+- remove available move by card
+
+- check existed available moves by 'to' .. when its TABLEAU pile
+- check new available move and add at 'from'
+
+
+3. when if 1,2 has nothing 
+- check STOCK as 'from' .. to TABLEAU, FOUNDATION
+
+- ADVANCED : check if there is cards that can be built for move tableau cards or card to another tableau pile
+
+
+
+*/
