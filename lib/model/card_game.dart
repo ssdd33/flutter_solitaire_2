@@ -67,6 +67,7 @@ class CardGame extends Game with ChangeNotifier {
 
     //XXX make first hint list
     hintList = [];
+    hintListHistory = [];
     curHintIdx = 0;
     for (TableauPile pile in tableau.piles) {
       GCard last = pile.cards.last;
@@ -94,8 +95,12 @@ class CardGame extends Game with ChangeNotifier {
 
 // UI controller에서 실행되어야함
   void addHistory(dynamic from, dynamic to) {
-    print(hintListHistory);
-    history.add([from, to, hintListHistory.length - 1]);
+    List<dynamic>? lastHistory = history.isEmpty ? null : history.last;
+    int hintHistoryIdx =
+        lastHistory == null || lastHistory[2] == hintListHistory.length - 1
+            ? -1
+            : hintListHistory.length - 1;
+    history.add([from, to, hintHistoryIdx]);
     (history);
   }
 
@@ -141,8 +146,9 @@ class CardGame extends Game with ChangeNotifier {
         }
       }
       if (hintListIdx >= 0) {
+        print("undo hintHistory: $hintListHistory, idx $hintListIdx");
         hintList = hintListHistory[hintListIdx];
-        hintListHistory = hintListHistory.sublist(0, hintListIdx);
+        hintListHistory = hintListHistory.sublist(0, hintListIdx + 1);
         curHintIdx = 0;
       }
       gameStatus = GameStatus.playing;
@@ -252,6 +258,10 @@ class CardGame extends Game with ChangeNotifier {
 
   void addHint(List<List<dynamic>> hints) {
     hintList.addAll(hints);
+    writeHintListHistory(hintList);
+  }
+
+  void writeHintListHistory(List<dynamic> hintList) {
     hintListHistory.add(hintList
         .map((hint) => hint.map((el) {
               if (el is GCard) {
@@ -260,6 +270,7 @@ class CardGame extends Game with ChangeNotifier {
               return el;
             }).toList())
         .toList());
+    print("HLH UPDATE(${hintListHistory.length}): $hintListHistory");
   }
 
   void checkHintList(GCard card) {
@@ -271,6 +282,8 @@ class CardGame extends Game with ChangeNotifier {
     hintList = hintList
         .where((hint) => hint[0] != card && hint[2] != prevHint[2])
         .toList();
+    writeHintListHistory(hintList);
+
     curHintIdx = 0;
     int fromTPileId = prevHint[1];
     GCard? lastCardOfTPile = tableau.pileMap[fromTPileId]!.cards.isEmpty
@@ -370,6 +383,9 @@ class CardGame extends Game with ChangeNotifier {
     }
   }
 
+/**
+ * return List< [GCard card, dynamic from, dynamic to] >
+ */
   List<dynamic>? getHint() {
     List<dynamic>? hint = null;
     if (hintList.isNotEmpty) {
@@ -381,6 +397,7 @@ class CardGame extends Game with ChangeNotifier {
         curHintIdx++;
       }
     }
+    notifyListeners();
     return hint;
   }
 }

@@ -15,7 +15,7 @@ class FoundationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     FoundationController controller = FoundationController(context: context);
-
+    print("***FOUNDATION BUILD");
     return Container(
         height: double.infinity,
         width: double.infinity,

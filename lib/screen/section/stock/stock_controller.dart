@@ -39,7 +39,9 @@ class StockController extends ChangeNotifier {
             game.checkAvailableMovesFromTableau(toPileId);
         if (availableMovesFromTableau.isNotEmpty) {
           for (List<dynamic> toPileData in availableMovesFromTableau) {
-            game.hintList.add([...toPileData, toPileId]);
+            game.addHint([
+              [...toPileData, toPileId]
+            ]);
           }
         }
       }

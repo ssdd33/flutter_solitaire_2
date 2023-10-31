@@ -30,3 +30,19 @@ class BoardScreen extends StatelessWidget {
     );
   }
 }
+
+/*
+
+cardGameScreen - game
+- header -gethint : trigger 
+- boardScreen
+
+-- foundation
+-- stock
+-- tableau
+
+
+
+
+
+*/

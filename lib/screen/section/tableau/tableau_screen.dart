@@ -17,7 +17,7 @@ class TableauScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TableauController controller = TableauController(context: context);
-
+    print("***TABLEAU BUILD");
     return SizedBox(
       height: double.infinity,
       width: double.infinity,
