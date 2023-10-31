@@ -21,6 +21,7 @@ class TableauController with ChangeNotifier {
     dynamic toPileId = tableau.move(pileId, card);
     if (toPileId != null) {
       game.addHistory(pileId, toPileId);
+      game.checkHintList(card);
       notifyListeners();
     }
   }

@@ -20,6 +20,8 @@ abstract class Section<T extends Pile, K> {
   dynamic move(K fromPileId, GCard card);
 
   void undo(K pileId) {
+    print("$K $pileId");
+    print(pileMap);
     pileMap[pileId]!.undo();
     print("section undo: ${pileMap[pileId]!.cards}");
   }

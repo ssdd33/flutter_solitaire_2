@@ -6,7 +6,7 @@ import 'package:flutter_solitaire_2/model/card_game.dart';
 
 class TableauPile extends Pile {
   TableauPile(super.id, super.defaultCards);
-  // GCard? get topOfFaceUp => cards.firstWhere((card) => card.isFaceUp);
+
   GCard? get bottomOfFaceUp => cards.isEmpty
       ? null
       : cards.last.isFaceUp

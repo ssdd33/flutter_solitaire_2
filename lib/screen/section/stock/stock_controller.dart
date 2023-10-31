@@ -33,6 +33,17 @@ class StockController extends ChangeNotifier {
     dynamic toPileId = stock.move(SectionType.stock, card);
     if (toPileId != null) {
       game.addHistory(SectionType.stock, toPileId);
+
+      if (toPileId.runtimeType == int) {
+        List<dynamic> availableMovesFromTableau =
+            game.checkAvailableMovesFromTableau(toPileId);
+        if (availableMovesFromTableau.isNotEmpty) {
+          for (List<dynamic> toPileData in availableMovesFromTableau) {
+            game.hintList.add([...toPileData, toPileId]);
+          }
+        }
+      }
+
       notifyListeners();
     }
   }
