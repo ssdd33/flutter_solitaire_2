@@ -27,7 +27,6 @@ abstract class Pile {
         .toList();
 
     history.add(snapShot);
-    print('pile history: $history');
   }
 
   void undo() {
@@ -41,7 +40,6 @@ abstract class Pile {
   }
 
   void restart() {
-    print(history[0]);
     cards = history[0]
         .map((card) => GCard(card.shape, card.color, card.value, card.isFaceUp))
         .toList();

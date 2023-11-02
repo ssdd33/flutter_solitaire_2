@@ -192,7 +192,7 @@ class CardGame extends Game with ChangeNotifier {
   int? _moveToTableau(List<GCard> cards) {
     //search tableau piles if there is card with opposite color and value + 1
     GCard selectedCard = cards[0];
-    print(tableau.piles);
+
     List<TableauPile> piles = tableau.piles
         .where((pile) =>
             pile.bottomColor != selectedCard.color &&

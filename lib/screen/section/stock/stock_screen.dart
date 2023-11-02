@@ -18,7 +18,7 @@ class StockScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     StockController controller = StockController(context);
-    print("***STOCK BUILD");
+    print("***STOCK BUILD_StockScreen");
     return SizedBox(
       height: double.infinity,
       width: double.infinity,
@@ -27,7 +27,6 @@ class StockScreen extends StatelessWidget {
         child: ListenableBuilder(
             listenable: controller,
             builder: (BuildContext context, Widget? child) {
-              print('listener: ${controller.faceUpCards}');
               return Flex(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 direction: Axis.horizontal,
@@ -74,7 +73,7 @@ class FaceUpCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('faceupCards : $cards');
+    print("***STOCK BUILD_FaceUpCards");
     return SizedBox(
       width: 82,
       height: 80,
