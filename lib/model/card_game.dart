@@ -15,7 +15,7 @@ class CardGame extends Game with ChangeNotifier {
       sectionMap[SectionType.foundation.name]! as Foundation;
   Tableau get tableau => sectionMap[SectionType.tableau.name]! as Tableau;
   List<dynamic> history = [];
-  List<dynamic> hintListHistory = [];
+
   /**
    * List< [GCard card, dynamic from, dynamic to] >
    */
@@ -66,42 +66,48 @@ class CardGame extends Game with ChangeNotifier {
     gameStatus = GameStatus.playing;
 
     //XXX make first hint list
+    initHintList();
+
+    //UI_UPDATE
+    notifyListeners();
+  }
+
+  void initHintList() {
     hintList = [];
-    hintListHistory = [];
+
     curHintIdx = 0;
+    List<List<dynamic>> newHints = [];
     for (TableauPile pile in tableau.piles) {
       GCard last = pile.cards.last;
       List<int> availableToList = checkAvailableMoveToTableau(last);
       SHAPE? availableToShape = checkAvailableMoveToFoundation(last);
 
       if (availableToList.isNotEmpty) {
-        List<List<dynamic>> newHints = [];
         for (int toPileId in availableToList) {
           newHints.add([last, pile.id, toPileId]);
         }
-        addHint(newHints);
       }
 
       if (availableToShape != null) {
-        addHint([
-          [last, pile.id, availableToShape]
-        ]);
+        newHints.add([last, pile.id, availableToShape]);
       }
     }
-
-    //UI_UPDATE
-    notifyListeners();
+    addHint(newHints);
   }
 
 // UI controller에서 실행되어야함
   void addHistory(dynamic from, dynamic to) {
-    List<dynamic>? lastHistory = history.isEmpty ? null : history.last;
-    int hintHistoryIdx =
-        lastHistory == null || lastHistory[2] == hintListHistory.length - 1
-            ? -1
-            : hintListHistory.length - 1;
-    history.add([from, to, hintHistoryIdx]);
-    (history);
+    List<dynamic> hintSnapshot = hintList
+        .map((hint) => hint.map((el) {
+              if (el is GCard) {
+                return GCard(el.shape, el.color, el.value, el.isFaceUp);
+              }
+              return el;
+            }).toList())
+        .toList();
+
+    history.add([from, to, hintSnapshot]);
+    print("H UPDATE(${history.length}: $history)");
   }
 
   void restartGame() {
@@ -109,6 +115,7 @@ class CardGame extends Game with ChangeNotifier {
       section.restart();
     }
     history = [];
+    initHintList();
     gameStatus = GameStatus.playing;
     //UI_UPDATE
     notifyListeners();
@@ -120,7 +127,7 @@ class CardGame extends Game with ChangeNotifier {
       List<dynamic> snapshot = history.removeLast();
       print(snapshot);
       List<dynamic> prevMove = snapshot.sublist(0, 2);
-      int hintListIdx = snapshot[2];
+      List<dynamic> hintSnapshot = snapshot[2];
 
       if (prevMove.where((id) => id == SectionType.stock).length == 2) {
         stock.undo(prevMove[0]);
@@ -145,15 +152,12 @@ class CardGame extends Game with ChangeNotifier {
           }
         }
       }
-      if (hintListIdx >= 0) {
-        print("undo hintHistory: $hintListHistory, idx $hintListIdx");
-        hintList = hintListHistory[hintListIdx];
-        hintListHistory = hintListHistory.sublist(0, hintListIdx + 1);
-        curHintIdx = 0;
-      }
+      hintList = hintSnapshot;
+      curHintIdx = 0;
       gameStatus = GameStatus.playing;
       //UI_UPDATE
       notifyListeners();
+      print("UNDO HISTORY(${history.length}): $history");
     }
   }
 
@@ -258,19 +262,6 @@ class CardGame extends Game with ChangeNotifier {
 
   void addHint(List<List<dynamic>> hints) {
     hintList.addAll(hints);
-    writeHintListHistory(hintList);
-  }
-
-  void writeHintListHistory(List<dynamic> hintList) {
-    hintListHistory.add(hintList
-        .map((hint) => hint.map((el) {
-              if (el is GCard) {
-                return GCard(el.shape, el.color, el.value, el.isFaceUp);
-              }
-              return el;
-            }).toList())
-        .toList());
-    print("HLH UPDATE(${hintListHistory.length}): $hintListHistory");
   }
 
   void checkHintList(GCard card) {
@@ -282,7 +273,6 @@ class CardGame extends Game with ChangeNotifier {
     hintList = hintList
         .where((hint) => hint[0] != card && hint[2] != prevHint[2])
         .toList();
-    writeHintListHistory(hintList);
 
     curHintIdx = 0;
     int fromTPileId = prevHint[1];
@@ -406,7 +396,7 @@ enum SectionType { stock, foundation, tableau }
 
 /*
 
-[hint]
+[ hint ]
 update hint list
 
 1. when game start
@@ -421,7 +411,7 @@ to : other TABLEAU pile or FOUNDATION pile
 - check existed available moves by 'to' .. when its TABLEAU pile
 - check new available move and add at 'from'
 
-3. when if 1,2 has nothing 
+3. when if 1, 2 has nothing 
 - check STOCK as 'from' .. to TABLEAU, FOUNDATION
 - ADVANCED : check if there is cards that can be built for move tableau cards or card to another tableau pile
 
